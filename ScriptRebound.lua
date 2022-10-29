@@ -107,7 +107,7 @@ local function Move()
 			if v.Character ~= nil and not v.Character:GetAttribute("Hiding") then
 				if canSeeTarget(v.Character,50) then
 					ReboundMoving:Stop()
-					v.Character:FindFirstChildWhichIsA("Humanoid"):TakeDamage(100)
+					--v.Character:FindFirstChildWhichIsA("Humanoid"):TakeDamage(100)
 					ReSt.GameStats["Player_".. Plr.Name].Total.DeathCause.Value = "Rebound"
 					firesignal(game.ReplicatedStorage.Bricks.DeathHint.OnClientEvent, {"You died to who you call Rebound...","He makes his presence known and keeps coming back...","Hide when this happens!"})
 				end
