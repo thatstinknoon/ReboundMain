@@ -1,3 +1,6 @@
+local killed = false
+local ReSt = game:GetService("ReplicatedStorage")
+local Plr = game.Players.LocalPlayer
 local val = 80
 local events = require(game.ReplicatedStorage.ClientModules.Module_Events)
 local cameraShaker = require(game.ReplicatedStorage.CameraShaker)
@@ -59,24 +62,13 @@ local function Move()
 	entity.CanCollide = false
 	----------------------
 	--_SHAKER DO NOT MOD IFY
-	spawn(function()
-		while entity ~= nil do wait(0.5)
-			local v = game.Players.LocalPlayer
-			local parent = script.Parent
-			if v.Character ~= nil then
-				if v.Character:FindFirstChild("HumanoidRootPart") and (entity.Position - v.Character:FindFirstChild("HumanoidRootPart").Position).magnitude <= val	 then
-					camShake:ShakeOnce(9,8,0.1,2,1,6)
-				end
-			end
-		end
-	end)
 	-----------OnSpawn----------
 	----------------------------
 
 
 	task.wait(4)
 
-
+	
 	----------Moving------------
 	local gruh = workspace.CurrentRooms
 	local ReboundMoving = GetGitSound("https://github.com/Noonie1/ReboundMain/blob/main/ReboundMoving.mp3?raw=true","ReboundMoving")
@@ -86,6 +78,49 @@ local function Move()
 	entity.CFrame = GetLastRoom().RoomEnd.CFrame
 	Reboundspeed = DEF_SPEED
 	wait(math.random(1,2))
+	--------------
+	local function canSeeTarget(target,size)
+		if killed == true then
+			return
+		end
+		local origin = entity.Position
+		local direction = (target.HumanoidRootPart.Position - entity.Position).unit * size
+		local ray = Ray.new(origin, direction)
+
+		local hit, pos = workspace:FindPartOnRay(ray, entity)
+
+
+		if hit then
+			if hit:IsDescendantOf(target) then
+				killed = true
+				return true
+			end
+		else
+			return false
+		end
+	end
+	-------------------------
+	spawn(function()
+		while entity ~= nil do wait(0.5)
+			local v = game.Players.LocalPlayer
+			local parent = script.Parent
+			if v.Character ~= nil and not v.Character:GetAttribute("Hiding") then
+				if canSeeTarget(v.Character,50) then
+					ReboundMoving:Stop()
+					v.Character:FindFirstChildWhichIsA("Humanoid"):TakeDamage(100)
+					ReSt.GameStats["Player_".. Plr.Name].Total.DeathCause.Value = "Rebound"
+					firesignal(game.ReplicatedStorage.Bricks.DeathHint.OnClientEvent, {"You died to who you call Rebound...","He makes his presence known and keeps coming back...","Hide when this happens!"})
+				end
+			end
+			if v.Character ~= nil then
+				if v.Character:FindFirstChild("HumanoidRootPart") and (entity.Position - v.Character:FindFirstChild("HumanoidRootPart").Position).magnitude <= val	 then
+					camShake:ShakeOnce(9,8,0.1,2,1,6)
+				end
+			end
+		end
+	end)
+	-----------------------
+	
 	for i = game.ReplicatedStorage.GameData.LatestRoom.Value + 1,0,-1 do
 		if gruh:FindFirstChild(i) then
 			print("room "..i)
